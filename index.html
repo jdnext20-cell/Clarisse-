@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Touch of Eternity 🌹 | Clarisse & Jean d'Amour</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,800;1,400;1,600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        roseGold: '#e8b4b8',
+                        deepRose: '#671424',
+                        goldAccent: '#d4af37',
+                        burgundyDark: '#120207',
+                        glassBg: 'rgba(255, 255, 255, 0.05)',
+                        glassBorder: 'rgba(212, 175, 55, 0.25)',
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Cormorant Garamond', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                        poetic: ['Cormorant Garamond', 'serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'spin-slow': 'spin 12s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-12px)' },
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 15px rgba(244, 63, 94, 0.4), 0 0 30px rgba(212, 175, 55, 0.2)' },
+                            '100%': { boxShadow: '0 0 30px rgba(244, 63, 94, 0.8), 0 0 50px rgba(212, 175, 55, 0.5)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at center, #260510 0%, #0d0106 100%);
+            color: #fce7f3;
+            overflow-x: hidden;
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism card effects */
+        .glass-card {
+            background: rgba(30, 8, 16, 0.75);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 
+                        inset 0 0 15px rgba(212, 175, 55, 0.1);
+        }
+
+        /* Gold Gradient Text */
+        .gold-text {
+            background: linear-gradient(135deg, #fff3d1 0%, #e6c875 50%, #b8860b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Scrollbar custom styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0106;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #671424;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4af37;
+        }
+
+        /* Wax Seal Styling */
+        .wax-seal {
+            background: radial-gradient(circle at 30% 30%, #e11d48, #881337);
+            box-shadow: 0 10px 25px rgba(225, 29, 72, 0.5), inset 0 2px 5px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Custom Audio Slider Input Range */
+        input[type=range] {
+            accent-color: #d4af37;
+        }
+
+        /* Animated Music Equalizer Bars */
+        .eq-bar {
+            width: 3px;
+            background-color: #f472b6;
+            animation: eqAnimation 1.2s ease-in-out infinite alternate;
+        }
+        .eq-bar:nth-child(1) { height: 60%; animation-delay: 0.1s; }
+        .eq-bar:nth-child(2) { height: 100%; animation-delay: 0.3s; }
+        .eq-bar:nth-child(3) { height: 40%; animation-delay: 0.2s; }
+        .eq-bar:nth-child(4) { height: 80%; animation-delay: 0.4s; }
+
+        @keyframes eqAnimation {
+            0% { height: 20%; }
+            100% { height: 100%; }
+        }
+
+        .paused .eq-bar {
+            animation-play-state: paused;
+            height: 30% !important;
+        }
+    </style>
+</head>
+<body class="relative flex flex-col items-center justify-center min-h-screen p-4 md:p-8">
+
+    <canvas id="ambient-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <!-- Hidden HTML5 Audio Element for Custom Song -->
+    <audio id="main-audio" loop preload="auto">
+        <source id="audio-source" src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-piano-112199.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- FLOATING TOP MUSIC BAR -->
+    <div class="fixed top-4 left-4 right-4 z-40 max-w-xl mx-auto flex items-center justify-between gap-3 px-4 py-2.5 rounded-full glass-card border border-amber-400/40 shadow-2xl">
+        
+        <!-- Track info & Equalizer -->
+        <div class="flex items-center gap-3 overflow-hidden">
+            <button id="floating-play-btn" onclick="togglePlay()" class="w-9 h-9 rounded-full bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center shadow-md transition-transform active:scale-95 flex-shrink-0">
+                <i id="floating-play-icon" class="fas fa-play text-xs ml-0.5"></i>
+            </button>
+            
+            <div class="flex flex-col min-w-0">
+                <span id="track-title-display" class="text-xs font-semibold text-amber-200 truncate">Our Special Song</span>
+                <span id="track-artist-display" class="text-[10px] text-rose-300/80 truncate">Jean d'Amour & Clarisse</span>
+            </div>
+        </div>
+
+        <!-- Equalizer & Options button -->
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <!-- Animated Equalizer -->
+            <div id="equalizer" class="flex items-end gap-1 h-4 px-2 paused">
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+            </div>
+
+            <button onclick="openSongModal()" class="px-2.5 py-1 text-[11px] font-medium rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/30 transition-all flex items-center gap-1">
+                <i class="fas fa-sliders text-xs"></i>
+                <span class="hidden sm:inline">Change Song</span>
+            </button>
+        </div>
+    </div>
+
+    <main class="relative z-10 w-full max-w-3xl mx-auto flex flex-col items-center justify-center pt-16">
+
+        <!-- 1. LANDING SCREEN / SECRET ENVELOPE CARD -->
+        <div id="landing-screen" class="w-full flex flex-col items-center text-center py-8 px-4 transition-all duration-700">
+            
+            <div class="animate-float mb-8 relative">
+                <!-- Glowing Ring -->
+                <div class="absolute -inset-4 rounded-full bg-gradient-to-r from-rose-600 to-amber-500 opacity-40 blur-lg animate-pulse-slow"></div>
+                
+                <!-- Envelope Icon Container -->
+                <div class="relative w-28 h-28 md:w-36 md:h-36 rounded-full glass-card flex items-center justify-center border-2 border-amber-400/50 shadow-2xl">
+                    <i class="fas fa-envelope-open-text text-4xl md:text-5xl text-amber-300 drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]"></i>
+                </div>
+            </div>
+
+            <span class="text-xs uppercase tracking-[0.3em] text-rose-300 font-semibold mb-2">Exclusively For You</span>
+            <h1 class="font-serif text-3xl md:text-5xl font-bold text-white mb-3 leading-tight">
+                A Secret Message for <br><span class="gold-text italic">Clarisse</span> 🌹
+            </h1>
+            
+            <p class="text-sm md:text-base text-rose-200/80 max-w-md font-light mb-8 leading-relaxed">
+                Jean d'Amour has crafted a romantic surprise to celebrate your bond, paired with your favorite melody. Touch below to unlock it.
+            </p>
+
+            <!-- Unlock Envelope Button -->
+            <button id="open-btn" class="wax-seal group relative px-8 py-4 rounded-full font-serif text-lg font-bold text-white tracking-wider uppercase transition-all duration-300 transform hover:scale-105 hover:shadow-[0_0_35px_rgba(225,29,72,0.8)] flex items-center gap-3">
+                <span>Open Surprise & Play Song</span>
+                <i class="fas fa-music text-amber-300 animate-bounce"></i>
+            </button>
+        </div>
+
+        <!-- 2. REVEALED ROMANTIC LETTER SCREEN (Initially Hidden) -->
+        <div id="letter-screen" class="hidden w-full glass-card rounded-2xl p-6 md:p-10 border border-amber-400/40 shadow-2xl relative overflow-hidden my-4 transition-all duration-1000 transform scale-95 opacity-0">
+            
+            <!-- Decorative Gold Corner Accents -->
+            <div class="absolute top-3 left-3 text-amber-400/40 text-xl"><i class="fas fa-crown"></i></div>
+            <div class="absolute top-3 right-3 text-amber-400/40 text-xl"><i class="fas fa-crown"></i></div>
+            <div class="absolute bottom-3 left-3 text-amber-400/40 text-xl"><i class="fas fa-heart"></i></div>
+            <div class="absolute bottom-3 right-3 text-amber-400/40 text-xl"><i class="fas fa-heart"></i></div>
+
+            <!-- CUSTOM SONG PLAYER CARD INSIDE THE LETTER -->
+            <div class="mb-8 rounded-xl bg-black/40 border border-amber-400/30 p-4 md:p-5 flex flex-col gap-3 shadow-inner">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-compact-disc text-amber-400 text-lg animate-spin-slow"></i>
+                        <span class="text-xs uppercase font-bold tracking-wider text-amber-300">Playing Love Theme</span>
+                    </div>
+                    <button onclick="openSongModal()" class="text-xs text-rose-300 hover:text-amber-300 underline flex items-center gap-1">
+                        <i class="fas fa-music"></i>
+                        <span>Change Track</span>
+                    </button>
+                </div>
+
+                <!-- Custom Progress Bar -->
+                <div class="flex items-center gap-3">
+                    <span id="current-time" class="text-[11px] font-mono text-rose-300/80">0:00</span>
+                    <input id="seek-slider" type="range" min="0" max="100" value="0" class="w-full h-1.5 bg-rose-950/80 rounded-lg appearance-none cursor-pointer">
+                    <span id="total-duration" class="text-[11px] font-mono text-rose-300/80">0:00</span>
+                </div>
+
+                <!-- Song Controls -->
+                <div class="flex items-center justify-between pt-1">
+                    <div class="flex items-center gap-3">
+                        <button onclick="togglePlay()" class="w-10 h-10 rounded-full bg-gradient-to-r from-rose-600 to-amber-600 text-white flex items-center justify-center hover:scale-105 transition-transform shadow-md">
+                            <i id="card-play-icon" class="fas fa-play text-sm ml-0.5"></i>
+                        </button>
+                        <div class="text-xs">
+                            <p id="card-song-title" class="font-semibold text-white">Romantic Melody</p>
+                            <p class="text-[10px] text-rose-300/70">Jean d'Amour & Clarisse</p>
+                        </div>
+                    </div>
+
+                    <!-- Volume Control -->
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-volume-high text-xs text-amber-300"></i>
+                        <input id="volume-slider" type="range" min="0" max="1" step="0.05" value="0.8" class="w-16 md:w-20 h-1 bg-rose-950 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Letter Header -->
+            <div class="text-center pb-6 border-b border-amber-400/20 mb-8">
+                <p class="text-xs font-semibold tracking-[0.4em] text-amber-400 uppercase mb-1">
+                    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+                </p>
+                <h2 class="font-serif text-2xl md:text-4xl font-extrabold gold-text tracking-wider uppercase my-2">
+                    🌹 A TOUCH OF ETERNITY 🌹
+                </h2>
+                <p class="text-xs font-semibold tracking-[0.4em] text-amber-400 uppercase">
+                    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+                </p>
+            </div>
+
+            <!-- Salutation -->
+            <div class="mb-6">
+                <h3 class="font-serif text-2xl md:text-3xl text-rose-200 font-bold italic">
+                    My Beloved Clarisse,
+                </h3>
+            </div>
+
+            <!-- Poetic Intro -->
+            <div class="prose prose-invert max-w-none text-rose-100/90 text-base md:text-lg leading-relaxed font-poetic mb-8 space-y-4">
+                <p>
+                    In my quiet contemplation of our bond, I blended our names—<strong class="text-amber-300 font-semibold">Jean d'Amour</strong> and <strong class="text-amber-300 font-semibold">Clarisse</strong>—to craft two timeless monikers tailored uniquely for us:
+                </p>
+            </div>
+
+            <!-- Interactive Couple Name Selection Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                
+                <!-- CARD 1: JALISSE -->
+                <div class="group relative rounded-xl p-6 glass-card bg-rose-950/30 border border-rose-500/30 hover:border-amber-400/80 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(244,63,94,0.3)] flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold uppercase tracking-widest text-rose-400">Option I</span>
+                            <i class="fas fa-heart text-rose-500 group-hover:scale-125 transition-transform"></i>
+                        </div>
+                        <h4 class="font-serif text-2xl font-bold text-amber-300 mb-1">
+                            ✨ Jalisse
+                        </h4>
+                        <p class="text-xs text-rose-300/70 italic mb-4">Jean d'Amour + Clarisse</p>
+                        
+                        <div class="bg-black/40 rounded-lg p-4 border border-rose-900/40 mb-4">
+                            <p class="text-xs uppercase font-semibold text-amber-400/80 tracking-wider mb-1">Insobanuro:</p>
+                            <p class="text-sm text-rose-100 italic leading-relaxed">
+                                "Imitima ibiri yihariye yishyize hamwe ikaba umwe udashobora gutanyuka."
+                            </p>
+                        </div>
+                    </div>
+
+                    <button onclick="selectOption('Jalisse')" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-rose-700 to-rose-600 hover:from-rose-600 hover:to-amber-600 text-white font-semibold text-xs uppercase tracking-wider transition-all duration-300 shadow-md flex items-center justify-center gap-2">
+                        <span>I Choose Jalisse</span>
+                        <i class="fas fa-heart"></i>
+                    </button>
+                </div>
+
+                <!-- CARD 2: CLAMOUR -->
+                <div class="group relative rounded-xl p-6 glass-card bg-amber-950/20 border border-amber-500/30 hover:border-amber-400/80 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(212,175,55,0.3)] flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold uppercase tracking-widest text-amber-400">Option II</span>
+                            <i class="fas fa-sun text-amber-400 group-hover:scale-125 transition-transform"></i>
+                        </div>
+                        <h4 class="font-serif text-2xl font-bold text-amber-300 mb-1">
+                            ✨ Clamour
+                        </h4>
+                        <p class="text-xs text-amber-200/70 italic mb-4">Clarisse + Jean d'Amour</p>
+                        
+                        <div class="bg-black/40 rounded-lg p-4 border border-amber-900/40 mb-4">
+                            <p class="text-xs uppercase font-semibold text-amber-400/80 tracking-wider mb-1">Insobanuro:</p>
+                            <p class="text-sm text-rose-100 italic leading-relaxed">
+                                "Urumuri rwawe ruhebuje ruvanze n'uburemere bw'urukundo rwanjye rw'akadasohoka."
+                            </p>
+                        </div>
+                    </div>
+
+                    <button onclick="selectOption('Clamour')" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white font-semibold text-xs uppercase tracking-wider transition-all duration-300 shadow-md flex items-center justify-center gap-2">
+                        <span>I Choose Clamour</span>
+                        <i class="fas fa-sparkles"></i>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Closing Text -->
+            <div class="prose prose-invert max-w-none text-rose-100/90 text-base md:text-lg leading-relaxed font-poetic mb-8">
+                <p>
+                    They stand as a testament to the light you bring into my life and the profound love we share. I cannot wait to hear which one steals your heart.
+                </p>
+            </div>
+
+            <!-- Sign-Off Signature -->
+            <div class="pt-6 border-t border-amber-400/20 text-right">
+                <p class="font-serif text-lg text-rose-300 italic">Devotedly,</p>
+                <p class="font-serif text-2xl md:text-3xl font-extrabold gold-text tracking-wide mt-1">
+                    Jean d'Amour
+                </p>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- 3. CUSTOM SONG MODAL (Jean d'Amour's Customization Tool) -->
+    <div id="song-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="glass-card max-w-md w-full rounded-2xl p-6 border border-amber-400/60 shadow-2xl relative">
+            
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-amber-400/20">
+                <h3 class="font-serif text-xl font-bold text-amber-300 flex items-center gap-2">
+                    <i class="fas fa-music"></i>
+                    <span>Set Custom Romantic Song</span>
+                </h3>
+                <button onclick="closeSongModal()" class="text-rose-300 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+
+            <p class="text-xs text-rose-200/80 mb-4 leading-relaxed">
+                Jean d'Amour, paste a direct MP3 audio link (from Pixabay, Dropbox direct link, or any web audio URL) to customize the background song for Clarisse:
+            </p>
+
+            <!-- Custom URL Input -->
+            <div class="mb-4">
+                <label class="block text-xs uppercase tracking-wider text-amber-400 font-semibold mb-1">Audio MP3 URL:</label>
+                <input id="custom-song-input" type="url" placeholder="https://example.com/your-song.mp3" class="w-full px-3 py-2.5 rounded-lg bg-black/50 border border-amber-400/30 text-xs text-white focus:outline-none focus:border-amber-400">
+            </div>
+
+            <div class="mb-5">
+                <label class="block text-xs uppercase tracking-wider text-amber-400 font-semibold mb-1">Song Name / Title:</label>
+                <input id="custom-title-input" type="text" placeholder="e.g. Perfect - Ed Sheeran Cover" class="w-full px-3 py-2.5 rounded-lg bg-black/50 border border-amber-400/30 text-xs text-white focus:outline-none focus:border-amber-400">
+            </div>
+
+            <!-- Quick Preset Audio Tracks -->
+            <div class="mb-6">
+                <label class="block text-xs uppercase tracking-wider text-amber-400 font-semibold mb-2">Or Choose Romantic Presets:</label>
+                <div class="grid grid-cols-1 gap-2 text-xs">
+                    <button onclick="applyPreset('https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-piano-112199.mp3', 'Romantic Piano Serenade')" class="text-left px-3 py-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/40 text-rose-200 transition-colors flex items-center justify-between">
+                        <span>🎹 Soft Romantic Piano Serenade</span>
+                        <i class="fas fa-check text-amber-400 text-xs"></i>
+                    </button>
+                    <button onclick="applyPreset('https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8b9d8858e.mp3?filename=sweet-love-109038.mp3', 'Sweet Acoustic Love')" class="text-left px-3 py-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/40 text-rose-200 transition-colors flex items-center justify-between">
+                        <span>🎸 Sweet Acoustic Guitars</span>
+                        <i class="fas fa-music text-xs opacity-50"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="saveCustomSong()" class="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-amber-600 to-rose-600 text-white font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity">
+                    Save Song Link
+                </button>
+                <button onclick="closeSongModal()" class="px-4 py-2.5 rounded-lg bg-white/10 text-xs text-rose-200 hover:bg-white/20">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. SELECTION CONFIRMATION MODAL (WhatsApp Response) -->
+    <div id="selection-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden transition-opacity duration-300">
+        <div class="glass-card max-w-md w-full rounded-2xl p-6 md:p-8 text-center border-2 border-amber-400/60 shadow-2xl transform scale-90 transition-transform duration-300 relative">
+            
+            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-rose-500 to-amber-400 flex items-center justify-center text-3xl text-white mb-4 shadow-lg animate-bounce">
+                <i id="selected-icon" class="fas fa-heart"></i>
+            </div>
+
+            <h3 class="font-serif text-2xl md:text-3xl font-bold text-amber-300 mb-2">
+                A Beautiful Choice! 💖
+            </h3>
+
+            <p class="text-sm text-rose-100/90 mb-4">
+                You have chosen <strong id="selected-name" class="text-amber-300 text-lg">Jalisse</strong> as your official couple moniker!
+            </p>
+
+            <div id="selected-meaning-box" class="bg-black/40 rounded-xl p-4 text-xs italic text-rose-200 border border-amber-400/20 mb-6">
+                <!-- Meaning injected dynamically -->
+            </div>
+
+            <!-- WhatsApp Action Button -->
+            <a id="whatsapp-share-btn" href="#" target="_blank" class="w-full py-3 px-6 rounded-full bg-green-600 hover:bg-green-500 text-white font-bold text-sm tracking-wide transition-all shadow-lg flex items-center justify-center gap-2 mb-3">
+                <i class="fab fa-whatsapp text-lg"></i>
+                <span>Send Choice to Jean d'Amour</span>
+            </a>
+
+            <button onclick="closeModal()" class="text-xs text-rose-300/70 hover:text-white underline">
+                Close & view letter again
+            </button>
+
+        </div>
+    </div>
+
+    <script>
+        // 1. Ambient Background Particles
+        const canvas = document.getElementById('ambient-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = height + Math.random() * 100;
+                this.size = Math.random() * 12 + 6;
+                this.speedY = Math.random() * 0.8 + 0.3;
+                this.speedX = Math.sin(Math.random() * Math.PI) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.color = Math.random() > 0.4 ? '#f472b6' : '#fbbf24';
+                this.type = Math.random() > 0.5 ? 'heart' : 'sparkle';
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.02;
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.rotSpeed;
+                if (this.y < -20) this.reset();
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+
+                if (this.type === 'heart') {
+                    ctx.beginPath();
+                    const topCurveHeight = this.size * 0.3;
+                    ctx.moveTo(0, topCurveHeight);
+                    ctx.bezierCurveTo(0, 0, -this.size / 2, 0, -this.size / 2, topCurveHeight);
+                    ctx.bezierCurveTo(-this.size / 2, (this.size + topCurveHeight) / 2, 0, this.size, 0, this.size);
+                    ctx.bezierCurveTo(0, this.size, this.size / 2, (this.size + topCurveHeight) / 2, this.size / 2, topCurveHeight);
+                    ctx.bezierCurveTo(this.size / 2, 0, 0, 0, 0, topCurveHeight);
+                    ctx.closePath();
+                    ctx.fill();
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.size / 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+
+        const particles = Array.from({ length: 40 }, () => new Particle());
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        // 2. Audio Engine & Custom Player
+        const mainAudio = document.getElementById('main-audio');
+        const audioSource = document.getElementById('audio-source');
+        const floatingPlayIcon = document.getElementById('floating-play-icon');
+        const cardPlayIcon = document.getElementById('card-play-icon');
+        const equalizer = document.getElementById('equalizer');
+        const seekSlider = document.getElementById('seek-slider');
+        const volumeSlider = document.getElementById('volume-slider');
+        const currentTimeEl = document.getElementById('current-time');
+        const totalDurationEl = document.getElementById('total-duration');
+        const trackTitleDisplay = document.getElementById('track-title-display');
+        const cardSongTitle = document.getElementById('card-song-title');
+
+        let isPlaying = false;
+
+        // Check URL parameters or local storage for custom song
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const customUrlParam = urlParams.get('song');
+            const customTitleParam = urlParams.get('title');
+
+            if (customUrlParam) {
+                setSongTrack(customUrlParam, customTitleParam || 'Custom Song for Clarisse');
+            } else if (localStorage.getItem('clarisse_song_url')) {
+                setSongTrack(
+                    localStorage.getItem('clarisse_song_url'),
+                    localStorage.getItem('clarisse_song_title') || 'Our Romantic Song'
+                );
+            }
+        });
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                mainAudio.pause();
+            } else {
+                mainAudio.play().catch(e => console.log('Audio autoplay prevented:', e));
+            }
+        }
+
+        mainAudio.addEventListener('play', () => {
+            isPlaying = true;
+            floatingPlayIcon.className = 'fas fa-pause text-xs';
+            cardPlayIcon.className = 'fas fa-pause text-sm ml-0';
+            equalizer.classList.remove('paused');
+        });
+
+        mainAudio.addEventListener('pause', () => {
+            isPlaying = false;
+            floatingPlayIcon.className = 'fas fa-play text-xs ml-0.5';
+            cardPlayIcon.className = 'fas fa-play text-sm ml-0.5';
+            equalizer.classList.add('paused');
+        });
+
+        mainAudio.addEventListener('timeupdate', () => {
+            if (!isNaN(mainAudio.duration)) {
+                const progress = (mainAudio.currentTime / mainAudio.duration) * 100;
+                seekSlider.value = progress;
+                currentTimeEl.textContent = formatTime(mainAudio.currentTime);
+                totalDurationEl.textContent = formatTime(mainAudio.duration);
+            }
+        });
+
+        seekSlider.addEventListener('input', (e) => {
+            if (!isNaN(mainAudio.duration)) {
+                mainAudio.currentTime = (e.target.value / 100) * mainAudio.duration;
+            }
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            mainAudio.volume = e.target.value;
+        });
+
+        function setSongTrack(url, title) {
+            audioSource.src = url;
+            mainAudio.load();
+            trackTitleDisplay.textContent = title;
+            cardSongTitle.textContent = title;
+            localStorage.setItem('clarisse_song_url', url);
+            localStorage.setItem('clarisse_song_title', title);
+        }
+
+        // 3. Custom Song Modal Functions
+        function openSongModal() {
+            document.getElementById('custom-song-input').value = localStorage.getItem('clarisse_song_url') || '';
+            document.getElementById('custom-title-input').value = localStorage.getItem('clarisse_song_title') || '';
+            document.getElementById('song-modal').classList.remove('hidden');
+        }
+
+        function closeSongModal() {
+            document.getElementById('song-modal').classList.add('hidden');
+        }
+
+        function applyPreset(url, title) {
+            document.getElementById('custom-song-input').value = url;
+            document.getElementById('custom-title-input').value = title;
+        }
+
+        function saveCustomSong() {
+            const url = document.getElementById('custom-song-input').value.trim();
+            const title = document.getElementById('custom-title-input').value.trim() || 'Our Romantic Song';
+
+            if (url) {
+                setSongTrack(url, title);
+                if (isPlaying) mainAudio.play();
+                closeSongModal();
+                alert('Song updated successfully! ❤️');
+            } else {
+                alert('Please enter a valid MP3 audio link.');
+            }
+        }
+
+        // 4. Reveal Letter Animation
+        const openBtn = document.getElementById('open-btn');
+        const landingScreen = document.getElementById('landing-screen');
+        const letterScreen = document.getElementById('letter-screen');
+
+        openBtn.addEventListener('click', () => {
+            // Start audio on envelope touch
+            if (!isPlaying) {
+                mainAudio.play().catch(e => console.log('Audio error:', e));
+            }
+
+            // Confetti explosion
+            confetti({
+                particleCount: 80,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#f472b6', '#d4af37', '#e11d48']
+            });
+
+            landingScreen.style.opacity = '0';
+            landingScreen.style.transform = 'scale(0.9) translateY(-30px)';
+
+            setTimeout(() => {
+                landingScreen.classList.add('hidden');
+                letterScreen.classList.remove('hidden');
+
+                setTimeout(() => {
+                    letterScreen.style.opacity = '1';
+                    letterScreen.style.transform = 'scale(1) translateY(0)';
+                }, 50);
+            }, 600);
+        });
+
+        // 5. Name Selection Logic
+        const meanings = {
+            'Jalisse': '"Imitima ibiri yihariye yishyize hamwe ikaba umwe udashobora gutanyuka."',
+            'Clamour': '"Urumuri rwawe ruhebuje ruvanze n\'uburemere bw\'urukundo rwanjye rw\'akadasohoka."'
+        };
+
+        function selectOption(name) {
+            confetti({
+                particleCount: 120,
+                spread: 120,
+                origin: { y: 0.5 },
+                colors: name === 'Jalisse' ? ['#f472b6', '#e11d48'] : ['#fbbf24', '#d4af37']
+            });
+
+            const modal = document.getElementById('selection-modal');
+            document.getElementById('selected-name').textContent = name;
+            document.getElementById('selected-meaning-box').textContent = meanings[name];
+            document.getElementById('selected-icon').className = name === 'Jalisse' ? 'fas fa-heart text-rose-200' : 'fas fa-sun text-amber-200';
+
+            const textMessage = encodeURIComponent(`My love Jean d'Amour, I opened your romantic surprise! 🌹 I choose "${name}" as our couple moniker ❤️. ${meanings[name]}`);
+            document.getElementById('whatsapp-share-btn').href = `https://api.whatsapp.com/send?text=${textMessage}`;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.firstElementChild.classList.remove('scale-90');
+                modal.firstElementChild.classList.add('scale-100');
+            }, 50);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('selection-modal');
+            modal.firstElementChild.classList.remove('scale-100');
+            modal.firstElementChild.classList.add('scale-90');
+            setTimeout(() => { modal.classList.add('hidden'); }, 200);
+        }
+    </script>
+</body>
+</html>
